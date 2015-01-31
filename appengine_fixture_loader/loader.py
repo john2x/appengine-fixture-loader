@@ -48,13 +48,14 @@ def load_fixture(filename, kind, post_processor=None):
             for attribute_name in [k for k in od.keys()
                                    if not k.startswith('__') and
                                    not k.endswith('__')]:
-                if attribute_name == '_key':
-                    obj.key = ndb.Key(*od[attribute_name])
-                else:
-                    attribute_type = objtype.__dict__[attribute_name]
-                    attribute_value = _sensible_value(attribute_type,
-                                                      od[attribute_name])
-                    obj.__dict__['_values'][attribute_name] = attribute_value
+                attribute_type = objtype.__dict__[attribute_name]
+                attribute_value = _sensible_value(attribute_type,
+                                                  od[attribute_name])
+                obj.__dict__['_values'][attribute_name] = attribute_value
+
+            # set custom key if specified
+            if '__key__' in od.keys():
+                obj.key = ndb.Key(*od['__key__'])
 
             if post_processor:
                 post_processor(obj)

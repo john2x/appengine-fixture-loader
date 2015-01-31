@@ -1,10 +1,10 @@
 [
     {
         "price": 100,
-        "_key": ["Customer", "john", "Purchase", "100"]
+        "__key__": ["Customer", "john", "Purchase", "100"]
     },
     {
         "price": 50,
-        "_key": ["Customer", "jane", "Purchase", "50"]
+        "__key__": ["Customer", "jane", "Purchase", "50"]
     }
 ]
