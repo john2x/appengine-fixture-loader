@@ -5,6 +5,7 @@ Tools to automate loading of test fixtures
 import json
 from datetime import datetime, time, date
 
+from google.appengine.ext import ndb
 from google.appengine.ext.ndb.model import (DateTimeProperty, DateProperty,
                                                 TimeProperty)
 
@@ -47,10 +48,13 @@ def load_fixture(filename, kind, post_processor=None):
             for attribute_name in [k for k in od.keys()
                                    if not k.startswith('__') and
                                    not k.endswith('__')]:
-                attribute_type = objtype.__dict__[attribute_name]
-                attribute_value = _sensible_value(attribute_type,
-                                                  od[attribute_name])
-                obj.__dict__['_values'][attribute_name] = attribute_value
+                if attribute_name == '_key':
+                    obj.key = ndb.Key(*od[attribute_name])
+                else:
+                    attribute_type = objtype.__dict__[attribute_name]
+                    attribute_value = _sensible_value(attribute_type,
+                                                      od[attribute_name])
+                    obj.__dict__['_values'][attribute_name] = attribute_value
 
             if post_processor:
                 post_processor(obj)

@@ -1,0 +1,10 @@
+[
+    {
+        "name": "John",
+        "_key": ["Customer", "john"]
+    },
+    {
+        "name": "Jane",
+        "_key": ["Customer", "jane"]
+    }
+]
