@@ -43,7 +43,19 @@ def load_fixture(filename, kind, post_processor=None):
                 objtype = kind[od['__kind__']]
             else:
                 objtype = kind
-            obj = objtype()
+
+            # set custom key if specified
+            if '__key__' in od.keys():
+                key = ndb.Key(*od['__key__'])
+                obj = objtype(key=key)
+            else:
+                parent, id = None, None
+                if '__parent__' in od.keys():
+                    parent = ndb.Key(*od['__parent__'])
+                if '__id__' in od.keys():
+                    id = od['__id__']
+                obj = objtype(parent=parent, id=id)
+
             # Iterate over the non-special attributes
             for attribute_name in [k for k in od.keys()
                                    if not k.startswith('__') and
@@ -53,19 +65,28 @@ def load_fixture(filename, kind, post_processor=None):
                                                   od[attribute_name])
                 obj.__dict__['_values'][attribute_name] = attribute_value
 
-            # set custom key if specified
-            if '__key__' in od.keys():
-                obj.key = ndb.Key(*od['__key__'])
-
             if post_processor:
                 post_processor(obj)
 
             # Saving obj is required to continue with the children
             obj.put()
 
-            # Scan the attributes for children
+            # Scan the attributes for key children
             for child_attribute_name in [k for k in od.keys()
-                                         if k.startswith('__children__')]:
+                                         if k == '__children__']:
+                for o in od[child_attribute_name]:
+                    # re-create o with a new key with parent
+                    old_key = o.key
+                    new_key = ndb.Key(o.__class__, o.key.id(), parent=obj.key)
+                    o.key = new_key
+                    o.put()
+                    # delete old key
+                    old_key.delete()
+
+            # Scan the attributes for children properties
+            for child_attribute_name in [k for k in od.keys()
+                                         if k.startswith('__children__')
+                                         and k != '__children__']:
                 attribute_name = child_attribute_name.split('__')[-2]
                 for o in od[child_attribute_name]:
                     o.__dict__['_values'][attribute_name] = obj.key

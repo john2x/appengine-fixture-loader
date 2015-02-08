@@ -1,0 +1,10 @@
+[
+    {
+        "price": 100,
+        "__parent__": ["Customer", "john"]
+    },
+    {
+        "price": 50,
+        "__parent__": ["Customer", "jane"]
+    }
+]

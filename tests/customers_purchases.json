@@ -1,0 +1,20 @@
+[
+    {
+        "__kind__": "Customer",
+        "name": "John",
+        "__id__": "john",
+        "__children__": [{
+            "__kind__": "Purchase",
+            "price": 100
+        }]
+    },
+    {
+        "__kind__": "Customer",
+        "name": "Jane",
+        "__id__": "jane",
+        "__children__": [{
+            "__kind__": "Purchase",
+            "price": 50
+        }]
+    }
+]
