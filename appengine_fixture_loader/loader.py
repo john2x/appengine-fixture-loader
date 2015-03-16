@@ -138,17 +138,24 @@ def load_fixture_flat(filename, kind, post_processor=None):
             for attribute_name in [k for k in od.keys() if
                                    not k.startswith('__')
                                    and (k.endswith('__key__') or k.endswith('__id__'))]:
+
+                attribute_name_ = attribute_name.replace('__key__', '').replace('__id__', '')
+                attribute_type = objtype.__dict__[attribute_name_]
+
                 if attribute_name.endswith('__key__'):
-                    k = ndb.Key(*od[attribute_name])
-                    attribute_name = attribute_name.replace('__key__', '')
+                    if attribute_type._repeated:
+                        value = [ndb.Key(*k) for k in od[attribute_name]]
+                    else:
+                        value = ndb.Key(*od[attribute_name])
                 elif attribute_name.endswith('__id__'):
                     id = od[attribute_name]
-                    attribute_name = attribute_name.replace('__id__', '')
-                    attribute_type = objtype.__dict__[attribute_name]
-                    k = ndb.Key(attribute_type._kind, id)
+                    if attribute_type._repeated:
+                        value = [ndb.Key(attribute_type._kind, i) for i in id]
+                    else:
+                        value = ndb.Key(attribute_type._kind, id)
                 else:
                     raise KeyError('Invalid key %s' % attribute_name)
-                obj.__dict__['_values'][attribute_name] = k
+                obj.__dict__['_values'][attribute_name_] = value
 
             obj.put()
 

@@ -1,0 +1,8 @@
+[
+    {
+        "products__id__": ["p001", "p002"]
+    },
+    {
+        "products__key__": [["Product", "p001"], ["Product", "p002"]]
+    }
+]

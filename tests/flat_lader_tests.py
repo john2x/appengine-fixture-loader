@@ -31,6 +31,10 @@ class Purchase(ndb.Model):
     product = ndb.KeyProperty(kind=Product, required=True)
 
 
+class ProductList(ndb.Model):
+    products = ndb.KeyProperty(kind=Product, repeated=True)
+
+
 class FlatLoaderTest(unittest.TestCase):
     def setUp(self):
         self.testbed = testbed.Testbed()
@@ -72,6 +76,18 @@ class FlatLoaderTest(unittest.TestCase):
         purchases_q = Purchase.query(ancestor=john_key)
         self.assertEqual(purchases_q.count(), len(purchases))
         self.assertEqual(sum([p.price for p in purchases_q.fetch()]), 150)
+
+    def test_repeated_keys(self):
+        product_lists = load_fixture_flat('tests/product_lists.json', ProductList)
+        product_lists_q = ProductList.query()
+        pl1 = product_lists_q.get()
+        pl2 = product_lists_q.get()
+        self.assertEqual(product_lists_q.count(), len(product_lists))
+        self.assertEqual(pl1.products, pl2.products)
+        self.assertEqual(pl1.products[0].id(), 'p001')
+        self.assertEqual(pl1.products[1].id(), 'p002')
+        self.assertEqual(pl2.products[0].id(), 'p001')
+        self.assertEqual(pl2.products[1].id(), 'p002')
 
 
 if __name__ == '__main__':
