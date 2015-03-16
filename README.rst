@@ -268,6 +268,34 @@ You can then retrieve fido with::
     fido = Dog.query(ancestor=alice.key).get()
 
 
+Flat fixtures loader
+--------------------
+
+A version of the ``load_fixture`` function that expects a "flat" representation
+of data is available.
+
+This alternative function is called ``load_fixture_flat``. Differences are as follows:
+
+- ``load_fixture_flat`` doesn't support the ``__children__*`` syntax of specifying
+  nested data.
+- ``load_fixture_flat`` supports a ``__key__`` field that is used as the key for the
+  entity. For example::
+    {"__key__": ["MyModel", "foo"], ...}
+    {"__key__": ["MyParentModel", "bar", "MyModel", "foo"], ...}
+- ``load_fixture_flat`` supports a ``__parent__`` field that is used as the parent key for
+  the entity. For example::
+    {"__parent__": ["MyParentModel", "bar"], ...}
+- ``__key__`` takes priority over ``__parent__`` and ``__id__``. ``__parent__`` and ``__id__`` can
+  be used together.
+- To specify the value of a ``KeyProperty`` property, suffix the property name with ``__key__``
+  or ``__id__``. For example, both examples are equivalent::
+    {"other__key__": ["MyOtherModel", "fizz"]},
+    {"other__id__": "fizz"}
+
+    // repeated KeyProperty field
+    {"other_repeated__key__": [["MyOtherModel", "fizz"], ["MyOtherModel", "buzz"]]}
+    {"other_repeated__id__": ["fizz", "buzz"]}
+
 Development
 ===========
 
