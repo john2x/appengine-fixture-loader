@@ -1,0 +1,14 @@
+[
+    {
+        "__kind__": "Purchase",
+        "price": 100,
+        "product__id__": "p001",
+        "__parent__": ["Person", "jdoe"]
+    },
+    {
+        "__kind__": "Purchase",
+        "price": 50,
+        "product__id__": "p002",
+        "__parent__": ["Person", "jdoe"]
+    }
+]

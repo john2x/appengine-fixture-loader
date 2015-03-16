@@ -1,0 +1,12 @@
+[
+    {
+        "price": 100,
+        "product__key__": ["Product", "p001"],
+        "__key__": ["Person", "jdoe", "Purchase", "100"]
+    },
+    {
+        "price": 50,
+        "product__key__": ["Product", "p002"],
+        "__key__": ["Person", "jdoe", "Purchase", "50"]
+    }
+]

@@ -5,6 +5,7 @@ Tools to automate loading of test fixtures
 import json
 from datetime import datetime, time, date
 
+from google.appengine.ext import ndb
 from google.appengine.ext.ndb.model import (DateTimeProperty, DateProperty,
                                             TimeProperty)
 
@@ -94,3 +95,73 @@ def load_fixture(filename, kind, post_processor=None):
         loaded.extend(_load(item, kind, post_processor))
 
     return loaded
+
+
+def load_fixture_flat(filename, kind, post_processor=None):
+    """
+    Load fixtures with support for `__key__` and `__parent__` fields.
+    Nested fixtures not supported (e.g. `__children__*`, etc.)
+    """
+
+    def _loader(kind):
+        "Create a loader for this type"
+
+        def _load(od):
+            "Load the attributes defined in od into a new object and saves it"
+            if hasattr(kind, 'keys'):  # kind is a map
+                objtype = kind[od['__kind__']]
+            else:
+                objtype = kind
+
+            # set custom key if specified
+            if '__key__' in od.keys():
+                key = ndb.Key(*od['__key__'])
+                obj = objtype(key=key)
+            else:
+                parent, id = None, None
+                if '__parent__' in od.keys():
+                    parent = ndb.Key(*od['__parent__'])
+                if '__id__' in od.keys():
+                    id = od['__id__']
+                obj = objtype(parent=parent, id=id)
+
+            # Iterate over the non-special attributes
+            for attribute_name in [k for k in od.keys()
+                                   if not k.startswith('__') and
+                                   not k.endswith('__')]:
+                attribute_type = objtype.__dict__[attribute_name]
+                attribute_value = _sensible_value(attribute_type,
+                                                  od[attribute_name])
+                obj.__dict__['_values'][attribute_name] = attribute_value
+
+            # Iterate over the special attributes
+            for attribute_name in [k for k in od.keys() if
+                                   not k.startswith('__')
+                                   and (k.endswith('__key__') or k.endswith('__id__'))]:
+                if attribute_name.endswith('__key__'):
+                    k = ndb.Key(*od[attribute_name])
+                    attribute_name = attribute_name.replace('__key__', '')
+                elif attribute_name.endswith('__id__'):
+                    id = od[attribute_name]
+                    attribute_name = attribute_name.replace('__id__', '')
+                    attribute_type = objtype.__dict__[attribute_name]
+                    k = ndb.Key(attribute_type._kind, id)
+                else:
+                    raise KeyError('Invalid key %s' % attribute_name)
+                obj.__dict__['_values'][attribute_name] = k
+
+            obj.put()
+
+            if post_processor:
+                post_processor(obj)
+
+            return obj
+
+        # Returns a function that takes a class and creates a populated
+        # instance of it based on a dictionary
+        return _load
+
+    data = json.load(open(filename), object_hook=_loader(kind=kind))
+
+    return data
+
