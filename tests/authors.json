@@ -1,0 +1,17 @@
+[
+    {
+        "first_name": "John Ronald Reuel",
+        "last_name": "Tolkien",
+        "born": "1892-01-03T00:00:00",
+        "books": [
+            {"title": "The Hobbit", "date_published": "1937-9-21"},
+            {"title": "Fellowship of the Ring", "date_published": "1954-7-29"}
+        ],
+        "address": {
+            "city": "Leeds",
+            "state": "West Yorkshire",
+            "country": "England"
+        },
+        "random": {"data": ["foo", "bar"]}
+    }
+]
