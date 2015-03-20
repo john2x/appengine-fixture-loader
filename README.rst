@@ -296,6 +296,50 @@ This alternative function is called ``load_fixture_flat``. Differences are as fo
     {"other_repeated__key__": [["MyOtherModel", "fizz"], ["MyOtherModel", "buzz"]]}
     {"other_repeated__id__": ["fizz", "buzz"]}
 
+``load_fixture_flat`` also supports ``StructuredProperty`` and ``LocalStructuredProperty`` fields.
+Just specify the nested fields as JSON and it will take care of determining the kind and converting
+it to an instance of that kind.::
+
+  class Book(ndb.Model):
+    title = ndb.StringProperty()
+    date_published = ndb.DateProperty()
+
+
+  class Address(ndb.Model):
+    city = ndb.StringProperty()
+    state = ndb.StringProperty()
+    country = ndb.StringProperty()
+
+
+  class Author(ndb.Model):
+    first_name = ndb.StringProperty()
+    last_name = ndb.StringProperty()
+    born = ndb.DateTimeProperty()
+    address = ndb.LocalStructuredProperty(Address)
+    books = ndb.StructuredProperty(Book, repeated=True)
+    random = ndb.JsonProperty()
+
+
+  [
+    {
+        "first_name": "John Ronald Reuel",
+        "last_name": "Tolkien",
+        "born": "1892-01-03T00:00:00",
+        "books": [
+            {"title": "The Hobbit", "date_published": "1937-9-21"},
+            {"title": "Fellowship of the Ring", "date_published": "1954-7-29"}
+        ],
+        "address": {
+            "city": "Leeds",
+            "state": "West Yorkshire",
+            "country": "England"
+        },
+        "random": {"data": ["foo", "bar"]}
+    }
+  ]
+
+
+
 Development
 ===========
 
