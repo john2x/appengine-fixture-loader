@@ -29,12 +29,6 @@ class Author(ndb.Model):
     random = ndb.JsonProperty()
 
 
-def post_processor(obj):
-    for book in obj.books:
-        date = datetime.datetime.strptime(book['date_published'], '%Y-%m-%d')
-        book['date_published'] = datetime.date(date.year, date.month, date.day)
-
-
 class StructuredPropertyTest(unittest.TestCase):
     def setUp(self):
         self.testbed = testbed.Testbed()
