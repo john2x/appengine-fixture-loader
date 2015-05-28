@@ -106,6 +106,9 @@ def load_fixture_flat(filename, kind, post_processor=None):
 
     def _load(od, kind, post_processor):
         "Load the attributes defined in od into a new object and saves it"
+        if od is None:
+            return
+
         if hasattr(kind, 'keys'):  # kind is a map
             objtype = kind[od['__kind__']]
         else:
